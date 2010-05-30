@@ -10,6 +10,8 @@ function Link(from, to) {
 	}
 };
 function Node(url, x, y) {
+	var n = this;
+
 	this.url = url;
 	this.x = x;
 	this.y = y;
@@ -18,6 +20,26 @@ function Node(url, x, y) {
 	circle.attr("fill", "#f00");
 	circle.attr("stroke", "#fff");
 
+	var label = sitemap.paper.text(x, y-25, url)
+									.attr({"font": '10px Fontin-Sans, Arial', stroke: "none", fill: "#fff"}).hide();
+								
+	var box = label.getBBox();
+	var bg = sitemap.paper.rect(box.x-5,box.y-5,box.width+10,box.height+10,4);
+	bg.attr('fill', '#222').hide();
+	label.toFront();
+
+	circle.node.onmouseover = function() {
+		label.attr({'x':n.x,'y':n.y-25});
+		box = label.getBBox();
+		bg.attr({'x':box.x-5,'y':box.y-5});
+		bg.show();
+		label.show();
+	};
+	circle.node.onmouseout = function() {
+		bg.hide();
+		label.hide();
+	};
+	
 	this.links = [];
 
 	this.move = function (x,y) {
@@ -27,6 +49,11 @@ function Node(url, x, y) {
 
 	var animating = false;
 
+	this.zorder = function () {
+		circle.toFront();
+		bg.toFront();
+		label.toFront();
+	};
 	this.animate = function () {
 		// Override any animations
 		animating = true;
@@ -109,6 +136,7 @@ var sitemap = {
 	addNode: function(url) {
 		if (this.nodes[url] != undefined) return;
 		this.nodes[url] = new Node(url, Math.random()*this.width, Math.random()*this.height);
+		for (url in this.nodes) { this.nodes[url].zorder(); } // TODO : run this less
 	},
 
 	addLink: function(from, to) {
@@ -117,6 +145,7 @@ var sitemap = {
 		if (to < from) { var x = from; from = to; to = x; }
 		this.nodes[from].addLink(to, this.nodes[to]);
 
+		for (url in this.nodes) { this.nodes[url].zorder(); } // TODO : run this less
 	}
 };
 
