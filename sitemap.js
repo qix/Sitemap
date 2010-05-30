@@ -14,9 +14,9 @@ function Node(url, x, y) {
 	this.x = x;
 	this.y = y;
 	
-	this.circle = sitemap.paper.circle(x, y, 10);
-	this.circle.attr("fill", "#f00");
-	this.circle.attr("stroke", "#fff");
+	var circle = sitemap.paper.circle(x, y, 10);
+	circle.attr("fill", "#f00");
+	circle.attr("stroke", "#fff");
 
 	this.links = [];
 
@@ -25,8 +25,14 @@ function Node(url, x, y) {
 		this.y = y;
 	};
 
+	var animating = false;
+
 	this.animate = function () {
-		this.circle.animate({'cx':this.x,'cy':this.y}, 2000, '>');
+		// Override any animations
+		animating = true;
+		circle.animate({'cx':this.x,'cy':this.y, 'fill':'#f00'}, 2000, '>', function() {
+			animating = false;
+		});
 		for (url in this.links) {
 			this.links[url].animate();
 		}
@@ -37,12 +43,20 @@ function Node(url, x, y) {
 		this.links[url] = new Link(this, to);
 		//to.links[this.url] = this.links[to];
 	};
+
+	this.pageview = function() {
+		if (animating) return;
+		circle.animate({'fill': '#0f0'}, 300, function() {
+			circle.animate({'fill':'#f00'},1000);
+		});
+	};
 }
 
 var sitemap = {
 	adjustTimeout: null,
 
 	nodes: [],
+	clients: [],
 
 	init: function() {
 		this.width = window.innerWidth;
@@ -70,6 +84,26 @@ var sitemap = {
 		for (url in this.nodes) {
 			this.nodes[url].animate();
 		}
+	},
+	
+	pageview: function(client, url) {
+		var to = this.nodes[url];
+		if (this.clients[client] != undefined) {
+			var from = this.nodes[this.clients[client]];
+			var circle = this.paper.circle(from.x, from.y, 1);
+			circle.attr('fill', '#fff');
+
+			
+			circle.animate({'cx': from.x + (to.x-from.x)/2.0, 'cy': from.y + (to.y-from.y)/2.0, 'r': 7}, 1000, function() {
+				circle.animate({'cx': to.x, 'cy': to.y, 'r': 1}, 1000, function() {
+					circle.remove();
+				});
+			});
+
+
+		}
+		this.clients[client] = url;
+		this.nodes[url].pageview();
 	},
 
 	addNode: function(url) {
