@@ -32,13 +32,13 @@ function init() {
 	}
 
 	var clients = ['/', '/clients', '/services'];
-	for (k in clients) {
-		setInterval(function() {
-			var move = choice(map[clients[k]]['link']);
-			clients[k] = move; 
-			sitemap.pageview(k, clients[k]);
-		}, 250+Math.random()*2000);
-	}
+	var run = function(k) {
+		var move = choice(map[clients[k]]['link']);
+		clients[k] = move; 
+		sitemap.pageview(k, clients[k]);
+		setTimeout(function() { run(k); }, 250+Math.random()*2000);
+	};
+	for (k in clients) { run(k); }
 }
 </script>
 </head>
