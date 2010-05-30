@@ -7,19 +7,27 @@ require 'config.php';
 <head>
 <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
 <script type="text/javascript" src="ext/raphael/raphael.js"></script>
+<script type="text/javascript" src="sitemap.js"></script>
 <script type="text/javascript">
 
 function init() {
 	// Creates canvas 320 × 200 at 10, 50
-	var paper = Raphael(10, 50, 320, 200);
+	sitemap.init();
+	sitemap.addNode('/');
+	sitemap.addNode('/clients');
+	sitemap.addNode('/client/add');
+	sitemap.addNode('/client/modify');
+	sitemap.addNode('/services');
+	sitemap.addNode('/setup/client');
 
-	// Creates circle at x = 50, y = 40, with radius 10
-	var circle = paper.circle(50, 40, 10);
-	// Sets the fill attribute of the circle to red (#f00)
-	circle.attr("fill", "#f00");
+	sitemap.addLink('/', '/clients');
+	sitemap.addLink('/', '/client/add');
+	sitemap.addLink('/', '/client/modify');
+	sitemap.addLink('/', '/services');
+	sitemap.addLink('/', '/setup/client');
 
-	// Sets the stroke attribute of the circle to white
-	circle.attr("stroke", "#fff");
+	sitemap.addLink('/clients', '/client/add');
+	sitemap.addLink('/client/add', '/client/modify');
 }
 </script>
 </head>
